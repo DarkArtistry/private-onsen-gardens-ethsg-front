@@ -1,5 +1,6 @@
 import { MerkleTree, Hasher } from "./merkleTree";
 import { BigNumber, BigNumberish } from "ethers";
+import { poseidonContract, buildPoseidon } from "circomlibjs";
 import { ethers } from "hardhat";
 
 function poseidonHash(poseidon, inputs) {
@@ -23,4 +24,54 @@ class PoseidonHasher extends Hasher {
     }
 }
 
-export default PoseidonHasher
+
+class Deposit {
+    private constructor(
+        public readonly nullifier: Uint8Array,
+        public poseidon: any,
+        public leafIndex?: number
+    ) {
+        this.poseidon = poseidon;
+    }
+    static new(poseidon: any) {
+        // random nullifier (private note)
+        // here we only have private nullifier 
+        const nullifier = ethers.utils.randomBytes(15);
+        return new this(nullifier, poseidon);
+    }
+    // get hash of secret (nullifier)
+    get commitment() {
+        return poseidonHash(this.poseidon, [this.nullifier, 0]);
+    }
+    // get hash f nullifierhash (nulifier+1+index)
+    get nullifierHash() {
+        if (!this.leafIndex && this.leafIndex !== 0)
+            throw Error("leafIndex is unset yet");
+        return poseidonHash(this.poseidon, [this.nullifier, 1, this.leafIndex]);
+    }
+}
+
+function getPoseidonFactory(nInputs: number) {
+    const bytecode = poseidonContract.createCode(nInputs);
+    const abiJson = poseidonContract.generateABI(nInputs);
+    const abi = new ethers.utils.Interface(abiJson);
+    return new ContractFactory(abi, bytecode);
+}
+
+await function deposit(amount: number) {
+    poseidon = await buildPoseidon();
+    const [userOldSigner, relayerSigner, userNewSigner] = await ethers.getSigners();
+    const deposit = Deposit.new(poseidon);
+    //deposit 
+    //parameters: nullifier hash and amount
+    const tx = await tornado
+        .connect(userOldSigner)
+        .deposit(deposit.commitment, { value: amount });
+    const receipt = await tx.wait();
+    const events = await tornado.queryFilter(
+        tornado.filters.Deposit(),
+        receipt.blockHash
+    );
+}
+
+export default PoseidonHasher;
