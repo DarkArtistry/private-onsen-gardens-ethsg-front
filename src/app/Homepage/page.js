@@ -335,8 +335,8 @@ export default function Home(props) {
       console.log("input : ", input);
 
       // TODO:
-      var res = await fetch("/deposit.wasm");
-      var buffer = await res.arrayBuffer();
+      // var res = await fetch("/deposit.wasm");
+      // var buffer = await res.arrayBuffer();
 
       // var depositWC = await wc(buffer);
 
