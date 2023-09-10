@@ -29,7 +29,7 @@ import { BigNumber} from "@ethersproject/bignumber";
 
 const onSenEtherAddress = "0x06DB9c2856Eab779B2794E98c769a2e6aDA4D4b6";
 const onSenEtherABI = {};
-const onSenEtherInterface = new ethers.Interface([onSenEtherABI]);
+const onSenEtherInterface = new ethers.utils.Interface([]);
 
 
 const StyledSelect = styled(Select)({

@@ -2,8 +2,8 @@ import { MerkleTree, Hasher } from "./merkleTree";
 import { BigNumber, BigNumberish } from "ethers";
 import { ethers } from "hardhat";
 
-function poseidonHash(poseidon: any, inputs: BigNumberish[]): string {
-    const hash = poseidon(inputs.map((x) => BigNumber.from(x).toBigInt()));
+function poseidonHash(poseidon, inputs) {
+    const hash = poseidon(inputs.map(x => BigNumber.from(x).toBigInt()));
     // Make the number within the field size
     const hashStr = poseidon.F.toString(hash);
     // Make it a valid hex string
@@ -13,15 +13,14 @@ function poseidonHash(poseidon: any, inputs: BigNumberish[]): string {
     return bytes32;
 }
 
-class PoseidonHasher implements Hasher {
-    poseidon: any;
-
-    constructor(poseidon: any) {
+class PoseidonHasher extends Hasher {
+    constructor(poseidon) {
         this.poseidon = poseidon;
     }
 
-    hash(left: string, right: string) {
+    hash(left, right) {
         return poseidonHash(this.poseidon, [left, right]);
     }
 }
 
+export default PoseidonHasher
