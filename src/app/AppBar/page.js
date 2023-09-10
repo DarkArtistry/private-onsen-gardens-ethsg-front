@@ -74,16 +74,6 @@ function ResponsiveAppBar(props) {
                     >
                         Secret Onsen
                     </Typography>
-                        {/* <Button variant='contained' onClick={() => {
-                          props.changeAppPage('hedge')
-                        }} sx={{ p: 1 }}>
-                            Hedge
-                        </Button>&nbsp;
-                        <Button variant='contained' onClick={()=> {
-                          props.changeAppPage('funding')
-                        }} sx={{ p: 1 }}>
-                            Investor Funding
-                        </Button> */}
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Button variant='contained' onClick={()=> {

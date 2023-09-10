@@ -3,8 +3,6 @@ import React, { useEffect } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
 import ResponsiveAppBar from './AppBar/page'
-import Premiums from './Premiums/page'
-import Fundings from './Fundings/page'
 import Homepage from './Homepage/page'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Slide } from '@mui/material';
@@ -53,8 +51,6 @@ export default function Home() {
       <ResponsiveAppBar changeAppPage={changeAppPage}/>
       <div className={styles.content}>
         {appPage === "home" && <Homepage changeAppPage={changeAppPage}/>}
-        {/* {appPage === "hedge" && <Premiums/>}
-        {appPage === "funding" && <Fundings/>} */}
       </div>
     </WagmiConfig>
     <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />

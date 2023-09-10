@@ -3,7 +3,6 @@ import Image from 'next/image'
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import styles from './page.module.css';
-import MonteCarloSimulator from '../MonteCarloSimulator/MCSimulator';
 import { Select, MenuItem, InputLabel, FormControl, TextField, 
     Accordion, AccordionSummary, AccordionDetails, Autocomplete,
     Typography, Button, Grid, Divider, Box, Chip, Tabs, Tab, Paper, Modal, Slide,
