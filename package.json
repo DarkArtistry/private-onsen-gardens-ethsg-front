@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@ethersproject/bignumber": "^5.7.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.5",
     "@mui/x-charts": "^6.0.0-alpha.0",
@@ -24,6 +25,7 @@
     "encoding": "^0.1.13",
     "eslint": "8.42.0",
     "eslint-config-next": "13.4.5",
+    "ethers": "^6.7.1",
     "firebase": "^9.23.0",
     "lodash": "^4.17.21",
     "lokijs": "^1.5.12",

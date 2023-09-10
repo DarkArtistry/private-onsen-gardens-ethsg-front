@@ -17,13 +17,19 @@ import { useAccount, useConnect, useDisconnect, useContractRead,
   useContractWrite, usePrepareContractWrite
 } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
-
 import PropTypes from 'prop-types';
 import coverJson from './cover.json'
 import Decimal from 'decimal.js';
 import { parseEther } from 'viem'
+import { ethers } from "ethers";
+import utils from '../methods/utils.js';
+import { BigNumber} from "@ethersproject/bignumber";
+const wc = require("../circuit/witness_calculator.js");
 
-// import "@glideapps/glide-data-grid/dist/index.css";
+const onSenEtherAddress = "0x06DB9c2856Eab779B2794E98c769a2e6aDA4D4b6";
+const onSenEtherABI = {};
+const onSenEtherInterface = new ethers.Interface([onSenEtherABI]);
+
 
 const StyledSelect = styled(Select)({
     "& .MuiOutlinedInput-root": {
@@ -272,6 +278,9 @@ export default function Home(props) {
   const [withdrawAmount, setWithdrawAmount] = useState(100000000000000000);
   const [privateNote, setPrivateNote] = useState("");
 
+
+  const [depositState, setDepositState] = useState(false);
+
   useEffect(() => {
     // console.log('data : ', data);
     // let tempData = Number(data);
@@ -310,6 +319,59 @@ export default function Home(props) {
   console.log("isConnected : ", isConnected);
   console.log("address : ", address);
   console.log("connector : ", connector);
+
+  const depositEther = async () => {
+      setDepositState(true);
+
+      const secret = BigNumber.from(ethers.randomBytes(32)).toString();
+      const nullifier = BigNumber.from(ethers.randomBytes(32)).toString();
+      
+      const input = {
+          secret: utils.BN256ToBin(secret).split(""),
+          nullifier: utils.BN256ToBin(nullifier).split("")
+      };
+
+      console.log("input : ", input);
+
+      var res = await fetch("/deposit.wasm");
+      var buffer = await res.arrayBuffer();
+      var depositWC = await wc(buffer);
+
+      const r = await depositWC.calculateWitness(input, 0);
+      console.log("r : ", r);
+      const commitment = r[1];
+      const nullifierHash = r[2];
+
+      const value = BigNumber.from("100000000000000000").toHexString();
+      console.log("value : ", value);
+      const tx = {
+          to: onSenEtherAddress,
+          from: address,
+          value: value,
+          data: onSenEtherInterface.encodeFunctionData("deposit", [commitment])
+      };
+
+      try {
+          console.log("tx : ", tx);
+          // const txHash = await window.ethereum.request({ method: "eth_sendTransaction", params: [tx] });
+
+          // const proofElements = {
+          //     nullifierHash: `${nullifierHash}`,
+          //     secret: secret,
+          //     nullifier: nullifier,
+          //     commitment: `${commitment}`,
+          //     txHash: txHash
+          // };
+
+          // console.log(proofElements);
+
+          // updateProofElements(btoa(JSON.stringify(proofElements)));
+      }catch(e){
+          console.log(e);
+      }
+
+      setDepositState(false);
+  };
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit>
@@ -434,7 +496,7 @@ export default function Home(props) {
                       variant="contained"
                       size="large"
                       onClick={()=> {
-                        props.changeAppPage('funding')
+                        depositEther()
                       }}
                     >Deposit Now!</StyledButton>
                     </StyledPinkPaper>
