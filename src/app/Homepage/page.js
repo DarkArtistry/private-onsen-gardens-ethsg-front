@@ -24,7 +24,8 @@ import { parseEther } from 'viem'
 import { ethers } from "ethers";
 import utils from '../methods/utils.js';
 import { BigNumber} from "@ethersproject/bignumber";
-const wc = require("../circuit/witness_calculator.js");
+
+// const wc = require("../circuit/witness_calculator.js");
 
 const onSenEtherAddress = "0x06DB9c2856Eab779B2794E98c769a2e6aDA4D4b6";
 const onSenEtherABI = {};
@@ -333,23 +334,25 @@ export default function Home(props) {
 
       console.log("input : ", input);
 
+      // TODO:
       var res = await fetch("/deposit.wasm");
       var buffer = await res.arrayBuffer();
-      var depositWC = await wc(buffer);
 
-      const r = await depositWC.calculateWitness(input, 0);
-      console.log("r : ", r);
-      const commitment = r[1];
-      const nullifierHash = r[2];
+      // var depositWC = await wc(buffer);
 
-      const value = BigNumber.from("100000000000000000").toHexString();
+      // const r = await depositWC.calculateWitness(input, 0);
+      // console.log("r : ", r);
+      // const commitment = r[1];
+      // const nullifierHash = r[2];
+
+      const value = BigNumber.from(`${depositAmount}`).toHexString();
       console.log("value : ", value);
-      const tx = {
-          to: onSenEtherAddress,
-          from: address,
-          value: value,
-          data: onSenEtherInterface.encodeFunctionData("deposit", [commitment])
-      };
+      // const tx = {
+      //     to: onSenEtherAddress,
+      //     from: address,
+      //     value: value,
+      //     data: onSenEtherInterface.encodeFunctionData("deposit", [commitment])
+      // };
 
       try {
           console.log("tx : ", tx);
