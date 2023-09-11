@@ -144,6 +144,7 @@ export class MerkleTree {
     }
   }
 
+  // element is commitmentHash
   async insert(element) {
     const index = this.totalElements;
     await this.update(index, element, true);

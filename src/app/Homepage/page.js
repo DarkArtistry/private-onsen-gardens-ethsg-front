@@ -327,7 +327,7 @@ export default function Home(props) {
     console.log("hi");
     const zeus = await buildPoseidon();
     const tree = new MerkleTree(20, "test", new PoseidonHasher(zeus));
-    console.log("somethign? = ", tree);
+    console.log("faraway ", tree);
   };
 
   useEffect(() => {
@@ -365,7 +365,30 @@ export default function Home(props) {
   // });
 
   // FOR DEPOSIT
-  const { config } = usePrepareContractWrite({
+  // const { config } = usePrepareContractWrite({
+  //   address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
+  //   abi: [
+  //     {
+  //       inputs: [
+  //         {
+  //           internalType: "bytes32",
+  //           name: "_commitment",
+  //           type: "bytes32",
+  //         },
+  //       ],
+  //       name: "deposit",
+  //       outputs: [],
+  //       stateMutability: "payable",
+  //       type: "function",
+  //     },
+  //   ],
+  //   functionName: "deposit",
+  //   args: [privateNote], // commited hash
+  //   value: depositAmount ? BigInt(`${1000000000000000}`) : parseEther("0"),
+  // }); 
+
+  // const { write } = useContractWrite(config);
+  const { write } = useContractWrite({
     address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
     abi: [
       {
@@ -383,11 +406,9 @@ export default function Home(props) {
       },
     ],
     functionName: "deposit",
-    args: [`${privateNote}`], // commited hash
-    value: depositAmount ? BigInt(`${1000000000000000}`) : parseEther("0"),
+    args: ["0x2c7f90943717dd51db8515f40db9a8458ffba953199ad8b449ee3995c1f0d8bc"], // commited hash
+    value: BigInt(`${1000000000000000}`),
   });
-
-  const { write } = useContractWrite(config);
 
   // FOR WITHDRAW
 
@@ -430,6 +451,37 @@ export default function Home(props) {
     }
   };
 
+  // async function withdraw() {
+  //   const nullifierHash = privateNote;
+  //   const recipient = address;
+  //   const relayer = await address;
+  //   const fee = 0;
+  
+  //   const { root, path_elements, path_index } = await tree.path(
+  //     deposit.leafIndex
+  //   );
+  
+  //   const witness = {
+  //     // Public
+  //     root,
+  //     nullifierHash,
+  //     recipient, // this case is myself
+  //     relayer, // this case is myself
+  //     fee,
+  //     // Private (user keep)
+  //     nullifier: BigNumber.from(deposit.nullifier).toBigInt(),
+  //     pathElements: path_elements,
+  //     pathIndices: path_index,
+  //   };
+  
+  //   const solProof = await prove(witness);
+  
+  //   const txWithdraw = await tornado
+  //     .connect(relayerSigner)
+  //     .withdraw(solProof, root, nullifierHash, recipient, relayer, fee);
+  //   const receiptWithdraw = await txWithdraw.wait();
+  // }
+
   const depositEther = async () => {
     setDepositState(true);
 
@@ -460,6 +512,29 @@ export default function Home(props) {
     });
 
     setPrivateNote(hashCommitment);
+
+    write?.({
+      address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "_commitment",
+              type: "bytes32",
+            },
+          ],
+          name: "deposit",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+      ],
+      functionName: "deposit",
+      args: [`${hashCommitment}`], // commited hash
+      value: BigInt(`${1000000000000000}`),
+    });
+
     setDepositState(false);
   };
 
@@ -628,7 +703,6 @@ export default function Home(props) {
                           onClick={async (e) => {
                             e.preventDefault();
                             await depositEther();
-                            write?.();
                           }}
                         >
                           Deposit Now!
