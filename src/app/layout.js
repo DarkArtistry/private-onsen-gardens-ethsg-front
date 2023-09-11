@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
-      <script src="/js/snarkjs.min.js" />
+      <Script src="/js/snarkjs.min.js" />
     </html>
   )
 }

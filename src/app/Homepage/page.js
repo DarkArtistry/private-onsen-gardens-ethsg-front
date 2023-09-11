@@ -539,13 +539,17 @@ export default function Home(props) {
     console.log("root : ", root);
     console.log("path_elements : ", path_elements);
     console.log("path_index : ", path_index);
+
+    console.log("globalNullifier : ", globalNullifier);
+
+    console.log("globalNullifier : ", BigNumber.from(globalNullifier).toBigInt());
   
     const witness = {
       // Public
-      root,
-      nullifierHash,
-      recipient, // this case is myself
-      relayer, // this case is myself
+      root: `${root}`,
+      nullifierHash: `${nullifierHash}`,
+      recipient: `${recipient}`, // this case is myself
+      relayer: `${relayer}`, // this case is myself
       fee,
       // Private (user keep)
       nullifier: BigNumber.from(globalNullifier).toBigInt(),
