@@ -320,7 +320,8 @@ export default function Home(props) {
   const [withdrawAmount, setWithdrawAmount] = useState(100000000000000000);
   const [privateNote, setPrivateNote] = useState("");
   const [globalNullifier, setGlobalNullifer] = useState("");
-  const [leafIndex, setLeafIndex] = useState(0);
+  const [globalNullifierHash, setGlobalNulliferHash] = useState("");
+  const [leafIndex, setLeafIndex] = useState(0); // mantle: 0, linea: 0
 
   const [zeus, setZues] = useState(true);
   const [farawayTree, setFarawayTree] = useState(true);
@@ -344,7 +345,7 @@ export default function Home(props) {
   }, []);
 
   const { write } = useContractWrite({
-    address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
+    address: "0xA78ADcae31FE6c67f9161c269f68FD74faea23AC",
     abi: [
       {
         inputs: [
@@ -361,14 +362,12 @@ export default function Home(props) {
       },
     ],
     functionName: "deposit",
-    // args: ["0x2c7f90943717dd51db8515f40db9a8458ffba953199ad8b449ee3995c1f0d8bc"], // commited hash
-    // value: BigInt(`${1000000000000000}`),
   });
 
   // FOR WITHDRAW
 
-  const { write: withdrawFromGoerli } = useContractWrite({
-    address: "0xF9adAe57F174E3cB32F2AF07a69BC9e7b20Bf303",
+  const { write: withdrawFromMantle } = useContractWrite({
+    address: "0xD6dd35Aa31fF49d1620A8a91DEe0a011045b7656",
     abi: [
       {
         inputs: [
@@ -377,56 +376,118 @@ export default function Home(props) {
               {
                 internalType: "uint256[2]",
                 name: "a",
-                type: "uint256[2]"
+                type: "uint256[2]",
               },
               {
                 internalType: "uint256[2][2]",
                 name: "b",
-                type: "uint256[2][2]"
+                type: "uint256[2][2]",
               },
               {
                 internalType: "uint256[2]",
                 name: "c",
-                type: "uint256[2]"
-              }
+                type: "uint256[2]",
+              },
             ],
             internalType: "struct Proof",
             name: "_proof",
-            type: "tuple"
+            type: "tuple",
           },
           {
             internalType: "bytes32",
             name: "_root",
-            type: "bytes32"
+            type: "bytes32",
           },
           {
             internalType: "bytes32",
             name: "_nullifierHash",
-            type: "bytes32"
+            type: "bytes32",
           },
           {
             internalType: "address",
             name: "_recipient",
-            type: "address"
+            type: "address",
           },
           {
             internalType: "address",
             name: "_relayer",
-            type: "address"
+            type: "address",
           },
           {
             internalType: "uint256",
             name: "_fee",
-            type: "uint256"
-          }
+            type: "uint256",
+          },
         ],
         name: "withdraw",
         outputs: [],
         stateMutability: "payable",
-        type: "function"
-      },
+        type: "function",
+      }
     ],
-    functionName: "deposit",
+    functionName: "withdraw",
+  })
+
+  const { write: withdrawFromLinea } = useContractWrite({
+    address: "0x550C6A96623a310eC1c446c27abE525d30c7f780",
+    abi: [
+      {
+        inputs: [
+          {
+            components: [
+              {
+                internalType: "uint256[2]",
+                name: "a",
+                type: "uint256[2]",
+              },
+              {
+                internalType: "uint256[2][2]",
+                name: "b",
+                type: "uint256[2][2]",
+              },
+              {
+                internalType: "uint256[2]",
+                name: "c",
+                type: "uint256[2]",
+              },
+            ],
+            internalType: "struct Proof",
+            name: "_proof",
+            type: "tuple",
+          },
+          {
+            internalType: "bytes32",
+            name: "_root",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "_nullifierHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "_recipient",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "_relayer",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "_fee",
+            type: "uint256",
+          },
+        ],
+        name: "withdraw",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function",
+      }
+    ],
+    functionName: "withdraw",
   })
 
 
@@ -457,6 +518,7 @@ export default function Home(props) {
           console.log("JSON IN FILE IS : ", json);
           setPrivateNote(json.hashCommitment);
           setGlobalNullifer(json.nullifier)
+          setGlobalNulliferHash(json.hashNullifier)
         } catch (error) {
           console.error("Error parsing JSON:", error);
           alert("Invalid JSON content in the file.");
@@ -467,12 +529,12 @@ export default function Home(props) {
   };
 
   const a = {
-    root: '0x28b49b1e20114a49a9063b1c9b3abc0be72e7c0bbad471f50971a71bd585f4b8',
-    nullifierHash: '0x1a47daa6190b647882c9f9a3ca67d761406a67d7be50adfb15aa0cca4d2fd18e',
+    root: '0x1bdb6fdbe8e30e778194570894e4341c9e4b1c42aa27ef161814d5be735bbef4',
+    nullifierHash: '0x18bf66d22c4afbcdeb8ed2b6380bf684b890ede292feea2313e421c381ad8774',
     recipient: '0xcbCe1adFbDb6b0dDaFcFaf3Bf7ea4f2781434c8D',
     relayer: '0x80cd2Bc6f7C420D3960efeb27a225f236bdD0d41',
     fee: 0,
-    nullifier: 1058983901162463086887521521941751170n,
+    nullifier: 450480740928811748528077665108377251n,
     pathElements: [
       '21663839004416932945382355908790599225266501822907911457504978515578255421292',
       '0x13e37f2d6cb86c78ccc1788607c2b199788c6bb0a615a21f2e7a8e88384222f8',
@@ -505,6 +567,9 @@ export default function Home(props) {
   const withdrawTest = async () => {
     const results = await prove(a)
     console.log(results);
+    withdrawFromMantle({
+      args: [results, a.root, a.nullifierHash, a.recipient, a.relayer, a.fee]
+    })
   }
 
   async function prove(witness) {
@@ -517,9 +582,6 @@ export default function Home(props) {
       ],
       c: [proof.pi_c[0], proof.pi_c[1]],
     };
-
-    console.log("solProof");
-    console.log(solProof);
   
     return solProof;
   }
@@ -562,6 +624,8 @@ export default function Home(props) {
     };
 
     console.log("witness : ", witness);
+
+    // window.global_witness = witness;
   
     const solProof = await prove(witness);
 
@@ -576,6 +640,14 @@ export default function Home(props) {
     const fee = 0;
 
     console.log("withdrawal in progress");
+
+    const leafResponse = await fetch(`http://localhost:3001/leafindex/${networkTo}`) // leafindex
+
+    const leafData = await leafResponse.json()
+
+    console.log("leafData: ", leafData);
+
+    return
   
     const { root, path_elements, path_index } = await window.tree.path(
       leafIndex
@@ -586,20 +658,30 @@ export default function Home(props) {
     console.log("path_index : ", path_index);
 
     console.log("globalNullifier : ", globalNullifier);
+    console.log("globalNullifierHash : ", globalNullifierHash);
 
     console.log("globalNullifier : ", BigNumber.from(globalNullifier).toBigInt());
+
   
+    // then call useContractWrite again 
+
+    const response = await fetch(`http://localhost:3001/withdraw/${leafIndex}/${networkTo}`) // leafindex
+
+    const bodyData = await response.json()
+
+    console.log("bodyData: ", bodyData);
+
     const witness = {
       // Public
-      root: `${root}`,
-      nullifierHash: `${nullifierHash}`,
-      recipient: `${recipient}`, // this case is myself
-      relayer: `${relayer}`, // this case is myself
+      root: `${bodyData.root}`,
+      nullifierHash: globalNullifierHash,
+      recipient: `${address}`, // this case is myself
+      relayer: `${address}`, // this case is myself
       fee,
       // Private (user keep)
       nullifier: BigNumber.from(globalNullifier).toBigInt(),
-      pathElements: path_elements,
-      pathIndices: path_index,
+      pathElements: bodyData.path_elements,
+      pathIndices: bodyData.path_index,
     };
 
     console.log("witness : ", witness);
@@ -607,17 +689,25 @@ export default function Home(props) {
     const solProof = await prove(witness);
 
     console.log("solProof : ", solProof);
-  
-    // then call useContractWrite again 
+
+
+    if (networkFrom === "mantle") {
+      withdrawFromMantle({
+        args: [solProof, witness.root, witness.nullifierHash, witness.recipient, witness.relayer, witness.fee]
+      })
+    } else {
+      withdrawFromLinea({
+        args: [solProof, witness.root, witness.nullifierHash, witness.recipient, witness.relayer, witness.fee]
+      })
+    }
   }
 
   const depositEther = async () => {
     setDepositState(true);
 
     console.log("BigNumber : ", BigNumber);
-    const nullifier = BigNumber.from(ethers.randomBytes(32)).toString();
+    const nullifier = BigNumber.from(ethers.randomBytes(15)).toString();
     const value = BigNumber.from(`${depositAmount}`).toHexString();
-
     console.log("nullifier : ", nullifier);
     console.log("value : ", value);
 
@@ -670,9 +760,15 @@ export default function Home(props) {
         },
       ],
       functionName: "deposit",
-      args: [`${hashCommitment}`,"mantle","0x83B7e46230ab279952Ad210c414d554255Ea95a2"], // commited hash
+      args: [`${hashCommitment}`,"mantle","0xD6dd35Aa31fF49d1620A8a91DEe0a011045b7656"], // commited hash
       value: BigInt(`${2000000000000000}`),
     });
+
+    const response = await fetch(`http://localhost:3001/deposit/${hashCommitment}/mantle`)
+
+    const bodyData = await response.json()
+
+    console.log("bodyData: ", bodyData);
 
     window.tree.insert(hashCommitment);
 
@@ -971,11 +1067,12 @@ export default function Home(props) {
                           fullWidth
                           variant="contained"
                           size="large"
-                          onClick={async () => {
+                          onClick={async (e) => {
+                            e.preventDefault()
                             await withdraw()
                             // await new_tree()
                             // console.log('test withdraw');
-                            withdrawTest()
+                            // await withdrawTest()
                           }}
                         >
                           Withdraw Now!
