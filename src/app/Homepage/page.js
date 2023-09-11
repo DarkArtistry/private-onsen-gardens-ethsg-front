@@ -593,28 +593,6 @@ export default function Home(props) {
 
     setPrivateNote(hashCommitment);
 
-    // write?.({
-    //   address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
-    //   abi: [
-    //     {
-    //       inputs: [
-    //         {
-    //           internalType: "bytes32",
-    //           name: "_commitment",
-    //           type: "bytes32",
-    //         },
-    //       ],
-    //       name: "deposit",
-    //       outputs: [],
-    //       stateMutability: "payable",
-    //       type: "function",
-    //     },
-    //   ],
-    //   functionName: "deposit",
-    //   args: [`${hashCommitment}`], // commited hash
-    //   value: BigInt(`${1000000000000000}`),
-    // });
-
     write?.({
       address: "0xA78ADcae31FE6c67f9161c269f68FD74faea23AC",
       abi: [
@@ -945,9 +923,9 @@ export default function Home(props) {
                           variant="contained"
                           size="large"
                           onClick={async () => {
-                            // await withdraw()
-                            console.log('test withdraw');
-                            withdrawTest()
+                            await withdraw()
+                            // console.log('test withdraw');
+                            // withdrawTest()
                           }}
                         >
                           Withdraw Now!
