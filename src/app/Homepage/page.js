@@ -291,7 +291,7 @@ export default function Home(props) {
   const [pageState, setPageState] = useState("deposit");
   const [networkFrom, setNetWorkFrom] = useState("ethereum");
   const [networkTo, setNetWorkTo] = useState("mantle");
-  const [depositAmount, setDepositAmount] = useState(100000000000000000);
+  const [depositAmount, setDepositAmount] = useState(1000000000000000);
   const [withdrawAmount, setWithdrawAmount] = useState(100000000000000000);
   const [privateNote, setPrivateNote] = useState("");
   const [leafIndex, setLeafIndex] = useState(0);
@@ -548,7 +548,7 @@ export default function Home(props) {
                             setDepositAmount(e.target.value)
                           }}
                         >
-                          <MenuItem value={1000}>1000 Wei</MenuItem>
+                          <MenuItem value={1000000000000000}>0.001 Ether</MenuItem>
                           <MenuItem value={100000000000000000}>0.1 Ether</MenuItem>
                           <MenuItem value={1000000000000000000}>1 Ether</MenuItem>
                           <MenuItem value={10000000000000000000}>10 Ether</MenuItem>
@@ -618,6 +618,7 @@ export default function Home(props) {
                             setWithdrawAmount(e.target.value)
                           }}
                         >
+                          <MenuItem value={1000000000000000}>0.001 Ether</MenuItem>
                           <MenuItem value={100000000000000000}>0.1 Ether</MenuItem>
                           <MenuItem value={1000000000000000000}>1 Ether</MenuItem>
                           <MenuItem value={10000000000000000000}>10 Ether</MenuItem>
