@@ -53,8 +53,10 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { poseidonContract, buildPoseidon } from "circomlibjs";
 import { poseidonHash, PoseidonHasher } from "../methods/hashing";
 import depositAbi from "./depositAbi.json";
-
 import { MerkleTree } from "../methods/merkleTree";
+// import { getProver, Groth16 } from '@railgun-community/wallet';
+// const snarkjs = window.snarkjs;
+
 
 // const wc = require("../circuit/witness_calculator.js");
 
@@ -317,16 +319,21 @@ export default function Home(props) {
   const [depositAmount, setDepositAmount] = useState(1000000000000000);
   const [withdrawAmount, setWithdrawAmount] = useState(100000000000000000);
   const [privateNote, setPrivateNote] = useState("");
+  const [globalNullifier, setGlobalNullifer] = useState("");
   const [leafIndex, setLeafIndex] = useState(0);
 
-  const [poseidon, setPoseidon] = useState(false);
+  const [zeus, setZues] = useState(true);
+  const [farawayTree, setFarawayTree] = useState(true);
 
   const [depositState, setDepositState] = useState(false);
 
   const init = async () => {
-    console.log("hi");
     const zeus = await buildPoseidon();
+    // setZues(zeus);
+    window.zeus = zeus;
     const tree = new MerkleTree(20, "test", new PoseidonHasher(zeus));
+    window.tree = tree;
+    // setFarawayTree(tree)
     console.log("faraway ", tree);
   };
 
@@ -336,58 +343,6 @@ export default function Home(props) {
     // console.log("merkletree");
   }, []);
 
-  // const {write} = useContractWrite({
-  //   address: '0x61d2408168aC3ab91663EB945A53237109768165',
-  //   abi: coverJson.abi,
-  //   functionName: 'buyCover',
-  //   args:[[
-  //     "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e", // eth address token 0
-  //     "0x04b1560f4f58612a24cf13531f4706c817e8a5fe", // pool address token 1
-  //     (Number(tokenTwoQty) % 1 !== 0 ? parseInt(tokenTwoQty) * Math.pow(10, 18) : tokenTwoQty * Math.pow(10, 18)),
-  //     (Number(tokenOneQty) % 1 !== 0 ? parseInt(tokenOneQty) * Math.pow(10, 18) : tokenOneQty * Math.pow(10, 18)),
-  //     (lowerBound * Math.pow(10, 18)),
-  //     (upperBound * Math.pow(10, 18)),
-  //     (validPeriod * 60 * 60 * 24),
-  //     "USDC/WETH",
-  //     (Number(data) % 1 !== 0 ? parseInt(data) * Math.pow(10, 18) : parseInt(data.toString())),
-  //   ]],
-  //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
-  // });
-
-  // const { write } = useContractWrite({
-  //   address: '0x61d2408168aC3ab91663EB945A53237109768165',
-  //   abi: depositAbi.abi,
-  //   functionName: 'deposit',
-  //   args:[
-  //     `${privateNote}` // commited hash
-  //   ],
-  //   value: depositAmount ? parseEther(`${depositAmount}`): parseEther("0"),
-  // });
-
-  // FOR DEPOSIT
-  // const { config } = usePrepareContractWrite({
-  //   address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
-  //   abi: [
-  //     {
-  //       inputs: [
-  //         {
-  //           internalType: "bytes32",
-  //           name: "_commitment",
-  //           type: "bytes32",
-  //         },
-  //       ],
-  //       name: "deposit",
-  //       outputs: [],
-  //       stateMutability: "payable",
-  //       type: "function",
-  //     },
-  //   ],
-  //   functionName: "deposit",
-  //   args: [privateNote], // commited hash
-  //   value: depositAmount ? BigInt(`${1000000000000000}`) : parseEther("0"),
-  // }); 
-
-  // const { write } = useContractWrite(config);
   const { write } = useContractWrite({
     address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
     abi: [
@@ -406,15 +361,74 @@ export default function Home(props) {
       },
     ],
     functionName: "deposit",
-    args: ["0x2c7f90943717dd51db8515f40db9a8458ffba953199ad8b449ee3995c1f0d8bc"], // commited hash
-    value: BigInt(`${1000000000000000}`),
+    // args: ["0x2c7f90943717dd51db8515f40db9a8458ffba953199ad8b449ee3995c1f0d8bc"], // commited hash
+    // value: BigInt(`${1000000000000000}`),
   });
 
   // FOR WITHDRAW
 
-  // const { data: sellData, isLoading: sellisLoading, isSuccess: sellisSuccess, write: sellWrite } = useContractWrite(sellConfig)
+  const { write: withdrawFromGoerli } = useContractWrite({
+    address: "0xF9adAe57F174E3cB32F2AF07a69BC9e7b20Bf303",
+    abi: [
+      {
+        inputs: [
+          {
+            components: [
+              {
+                internalType: "uint256[2]",
+                name: "a",
+                type: "uint256[2]"
+              },
+              {
+                internalType: "uint256[2][2]",
+                name: "b",
+                type: "uint256[2][2]"
+              },
+              {
+                internalType: "uint256[2]",
+                name: "c",
+                type: "uint256[2]"
+              }
+            ],
+            internalType: "struct Proof",
+            name: "_proof",
+            type: "tuple"
+          },
+          {
+            internalType: "bytes32",
+            name: "_root",
+            type: "bytes32"
+          },
+          {
+            internalType: "bytes32",
+            name: "_nullifierHash",
+            type: "bytes32"
+          },
+          {
+            internalType: "address",
+            name: "_recipient",
+            type: "address"
+          },
+          {
+            internalType: "address",
+            name: "_relayer",
+            type: "address"
+          },
+          {
+            internalType: "uint256",
+            name: "_fee",
+            type: "uint256"
+          }
+        ],
+        name: "withdraw",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function"
+      },
+    ],
+    functionName: "deposit",
+  })
 
-  // console.log("cdata, isError, isLoading : ", data, isError, isLoading);
 
   // console.log("write : ", write);
   const { address, connector, isConnected } = useAccount();
@@ -442,6 +456,7 @@ export default function Home(props) {
           const json = JSON.parse(e.target.result);
           console.log("JSON IN FILE IS : ", json);
           setPrivateNote(json.hashCommitment);
+          setGlobalNullifer(json.nullifier)
         } catch (error) {
           console.error("Error parsing JSON:", error);
           alert("Invalid JSON content in the file.");
@@ -451,36 +466,101 @@ export default function Home(props) {
     }
   };
 
-  // async function withdraw() {
-  //   const nullifierHash = privateNote;
-  //   const recipient = address;
-  //   const relayer = await address;
-  //   const fee = 0;
+  const a = {
+    root: '0x28b49b1e20114a49a9063b1c9b3abc0be72e7c0bbad471f50971a71bd585f4b8',
+    nullifierHash: '0x1a47daa6190b647882c9f9a3ca67d761406a67d7be50adfb15aa0cca4d2fd18e',
+    recipient: '0xcbCe1adFbDb6b0dDaFcFaf3Bf7ea4f2781434c8D',
+    relayer: '0x80cd2Bc6f7C420D3960efeb27a225f236bdD0d41',
+    fee: 0,
+    nullifier: 1058983901162463086887521521941751170n,
+    pathElements: [
+      '21663839004416932945382355908790599225266501822907911457504978515578255421292',
+      '0x13e37f2d6cb86c78ccc1788607c2b199788c6bb0a615a21f2e7a8e88384222f8',
+      '0x217126fa352c326896e8c2803eec8fd63ad50cf65edfef27a41a9e32dc622765',
+      '0x0e28a61a9b3e91007d5a9e3ada18e1b24d6d230c618388ee5df34cacd7397eee',
+      '0x27953447a6979839536badc5425ed15fadb0e292e9bc36f92f0aa5cfa5013587',
+      '0x194191edbfb91d10f6a7afd315f33095410c7801c47175c2df6dc2cce0e3affc',
+      '0x1733dece17d71190516dbaf1927936fa643dc7079fc0cc731de9d6845a47741f',
+      '0x267855a7dc75db39d81d17f95d0a7aa572bf5ae19f4db0e84221d2b2ef999219',
+      '0x1184e11836b4c36ad8238a340ecc0985eeba665327e33e9b0e3641027c27620d',
+      '0x0702ab83a135d7f55350ab1bfaa90babd8fc1d2b3e6a7215381a7b2213d6c5ce',
+      '0x2eecc0de814cfd8c57ce882babb2e30d1da56621aef7a47f3291cffeaec26ad7',
+      '0x280bc02145c155d5833585b6c7b08501055157dd30ce005319621dc462d33b47',
+      '0x045132221d1fa0a7f4aed8acd2cbec1e2189b7732ccb2ec272b9c60f0d5afc5b',
+      '0x27f427ccbf58a44b1270abbe4eda6ba53bd6ac4d88cf1e00a13c4371ce71d366',
+      '0x1617eaae5064f26e8f8a6493ae92bfded7fde71b65df1ca6d5dcec0df70b2cef',
+      '0x20c6b400d0ea1b15435703c31c31ee63ad7ba5c8da66cec2796feacea575abca',
+      '0x09589ddb438723f53a8e57bdada7c5f8ed67e8fece3889a73618732965645eec',
+      '0x0064b6a738a5ff537db7b220f3394f0ecbd35bfd355c5425dc1166bf3236079b',
+      '0x095de56281b1d5055e897c3574ff790d5ee81dbc5df784ad2d67795e557c9e9f',
+      '0x11cf2e2887aa21963a6ec14289183efe4d4c60f14ecd3d6fe0beebdf855a9b63'
+    ],
+    pathIndices: [
+      0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0
+    ]
+  }
+
+  const withdrawTest = async () => {
+    const results = await prove(a)
+    console.log(results);
+  }
+
+  async function prove(witness) {
+    const { proof } = await window.snarkjs.groth16.fullProve(witness, "withdraw.wasm", "circuit_final.zkey");
+    const solProof = {
+      a: [proof.pi_a[0], proof.pi_a[1]],
+      b: [
+        [proof.pi_b[0][1], proof.pi_b[0][0]],
+        [proof.pi_b[1][1], proof.pi_b[1][0]],
+      ],
+      c: [proof.pi_c[0], proof.pi_c[1]],
+    };
+
+    console.log("solProof");
+    console.log(solProof);
   
-  //   const { root, path_elements, path_index } = await tree.path(
-  //     deposit.leafIndex
-  //   );
+    return solProof;
+  }
+
+  async function withdraw() {
+    const nullifierHash = privateNote;
+    const recipient = address;
+    const relayer = address;
+    const fee = 0;
+
+    console.log("withdrawal in progress");
   
-  //   const witness = {
-  //     // Public
-  //     root,
-  //     nullifierHash,
-  //     recipient, // this case is myself
-  //     relayer, // this case is myself
-  //     fee,
-  //     // Private (user keep)
-  //     nullifier: BigNumber.from(deposit.nullifier).toBigInt(),
-  //     pathElements: path_elements,
-  //     pathIndices: path_index,
-  //   };
+    const { root, path_elements, path_index } = await window.tree.path(
+      leafIndex
+    );
+
+    console.log("root : ", root);
+    console.log("path_elements : ", path_elements);
+    console.log("path_index : ", path_index);
   
-  //   const solProof = await prove(witness);
+    const witness = {
+      // Public
+      root,
+      nullifierHash,
+      recipient, // this case is myself
+      relayer, // this case is myself
+      fee,
+      // Private (user keep)
+      nullifier: BigNumber.from(globalNullifier).toBigInt(),
+      pathElements: path_elements,
+      pathIndices: path_index,
+    };
+
+    console.log("witness : ", witness);
   
-  //   const txWithdraw = await tornado
-  //     .connect(relayerSigner)
-  //     .withdraw(solProof, root, nullifierHash, recipient, relayer, fee);
-  //   const receiptWithdraw = await txWithdraw.wait();
-  // }
+    const solProof = await prove(witness);
+
+    console.log("solProof : ", solProof);
+  
+    // then call useContractWrite again 
+  }
 
   const depositEther = async () => {
     setDepositState(true);
@@ -534,6 +614,8 @@ export default function Home(props) {
       args: [`${hashCommitment}`], // commited hash
       value: BigInt(`${1000000000000000}`),
     });
+
+    window.tree.insert(hashCommitment);
 
     setDepositState(false);
   };
@@ -830,8 +912,10 @@ export default function Home(props) {
                           fullWidth
                           variant="contained"
                           size="large"
-                          onClick={() => {
-                            props.changeAppPage("funding");
+                          onClick={async () => {
+                            // await withdraw()
+                            console.log('test withdraw');
+                            withdrawTest()
                           }}
                         >
                           Withdraw Now!

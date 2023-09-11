@@ -46,6 +46,7 @@ export class MerkleTree {
       }
 
       async handle_index(level, element_index, sibling_index) {
+        console.log("bye hi");
         const sibling = await this.storage.getMerkleTreeOrDefault(
           MerkleTree.index_to_key(this.prefix, level, sibling_index),
           this.zero_values[level]
@@ -98,6 +99,7 @@ export class MerkleTree {
         }
 
         async handle_index(level, element_index, sibling_index) {
+          console.log("test hi");
           if (level == 0) {
             this.original_element = await this.storage.getMerkleTreeOrDefault(
               MerkleTree.index_to_key(this.prefix, level, element_index),
@@ -152,6 +154,7 @@ export class MerkleTree {
   }
 
   async traverse(index, handler) {
+    console.log("hi");
     let current_index = index;
     for (let i = 0; i < this.n_levels; i++) {
       let sibling_index = current_index;

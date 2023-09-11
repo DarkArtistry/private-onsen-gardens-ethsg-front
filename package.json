@@ -17,6 +17,7 @@
     "@mui/material": "^5.13.5",
     "@mui/x-charts": "^6.0.0-alpha.0",
     "@mui/x-data-grid": "^6.8.0",
+    "@railgun-community/wallet": "^5.5.14",
     "@web3modal/ethereum": "^2.7.0",
     "@web3modal/react": "^2.7.0",
     "chart.js": "^4.3.0",
