@@ -23,13 +23,15 @@ import Decimal from 'decimal.js';
 import { parseEther } from 'viem'
 import { ethers } from "ethers";
 import utils from '../methods/utils.js';
-import { BigNumber} from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
+import { poseidonContract, buildPoseidon } from "circomlibjs";
+import {poseidonHash} from '../methods/hashing';
 
 // const wc = require("../circuit/witness_calculator.js");
 
 const onSenEtherAddress = "0x06DB9c2856Eab779B2794E98c769a2e6aDA4D4b6";
 const onSenEtherABI = {};
-const onSenEtherInterface = new ethers.utils.Interface([]);
+// const onSenEtherInterface = new ethers.utils.Interface([]);
 
 
 const StyledSelect = styled(Select)({
@@ -278,6 +280,7 @@ export default function Home(props) {
   const [depositAmount, setDepositAmount] = useState(100000000000000000);
   const [withdrawAmount, setWithdrawAmount] = useState(100000000000000000);
   const [privateNote, setPrivateNote] = useState("");
+  const [leafIndex, setLeafIndex] = useState(0);
 
 
   const [depositState, setDepositState] = useState(false);
@@ -312,6 +315,16 @@ export default function Home(props) {
   //   ]],
   //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
   // });
+
+  const {write} = useContractWrite({
+    address: '0x61d2408168aC3ab91663EB945A53237109768165',
+    abi: coverJson.abi,
+    functionName: 'buyCover',
+    args:[[
+      "" // commited hash
+    ]],
+    value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
+  });
   
   // console.log("cdata, isError, isLoading : ", data, isError, isLoading);
 
@@ -324,29 +337,36 @@ export default function Home(props) {
   const depositEther = async () => {
       setDepositState(true);
 
+      console.log("BigNumber : ", BigNumber);
+
       const secret = BigNumber.from(ethers.randomBytes(32)).toString();
       const nullifier = BigNumber.from(ethers.randomBytes(32)).toString();
+      const value = BigNumber.from(`${depositAmount}`).toHexString();
+
+      console.log("secret : ", secret);
+      console.log("nullifier : ", nullifier);
+      console.log("value : ", value);
       
       const input = {
           secret: utils.BN256ToBin(secret).split(""),
           nullifier: utils.BN256ToBin(nullifier).split("")
       };
 
-      console.log("input : ", input);
+      let newPoseidon = await buildPoseidon();
 
-      // TODO:
-      // var res = await fetch("/deposit.wasm");
-      // var buffer = await res.arrayBuffer();
+      console.log("newPoseidon : ", newPoseidon);
 
-      // var depositWC = await wc(buffer);
+      const hashCommitment = poseidonHash(newPoseidon, [nullifier, 0]);
+      const hashNullifier = poseidonHash(newPoseidon, [nullifier, 1, leafIndex]);
 
-      // const r = await depositWC.calculateWitness(input, 0);
-      // console.log("r : ", r);
-      // const commitment = r[1];
-      // const nullifierHash = r[2];
+      console.log("hashCommitment: ", hashCommitment);
+      console.log("hashNullifier: ", hashNullifier);
 
-      const value = BigNumber.from(`${depositAmount}`).toHexString();
       console.log("value : ", value);
+
+      // hashCommitment, value to smart contract
+
+
       // const tx = {
       //     to: onSenEtherAddress,
       //     from: address,
@@ -355,7 +375,7 @@ export default function Home(props) {
       // };
 
       try {
-          console.log("tx : ", tx);
+          // console.log("tx : ", tx);
           // const txHash = await window.ethereum.request({ method: "eth_sendTransaction", params: [tx] });
 
           // const proofElements = {
