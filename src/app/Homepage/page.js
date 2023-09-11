@@ -593,8 +593,30 @@ export default function Home(props) {
 
     setPrivateNote(hashCommitment);
 
+    // write?.({
+    //   address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
+    //   abi: [
+    //     {
+    //       inputs: [
+    //         {
+    //           internalType: "bytes32",
+    //           name: "_commitment",
+    //           type: "bytes32",
+    //         },
+    //       ],
+    //       name: "deposit",
+    //       outputs: [],
+    //       stateMutability: "payable",
+    //       type: "function",
+    //     },
+    //   ],
+    //   functionName: "deposit",
+    //   args: [`${hashCommitment}`], // commited hash
+    //   value: BigInt(`${1000000000000000}`),
+    // });
+
     write?.({
-      address: "0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765",
+      address: "0xA78ADcae31FE6c67f9161c269f68FD74faea23AC",
       abi: [
         {
           inputs: [
@@ -602,6 +624,16 @@ export default function Home(props) {
               internalType: "bytes32",
               name: "_commitment",
               type: "bytes32",
+            },
+            {
+              internalType: "string",
+              name: "destinationChain",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "destinationAddress",
+              type: "string",
             },
           ],
           name: "deposit",
@@ -611,8 +643,8 @@ export default function Home(props) {
         },
       ],
       functionName: "deposit",
-      args: [`${hashCommitment}`], // commited hash
-      value: BigInt(`${1000000000000000}`),
+      args: [`${hashCommitment}`,"mantle","0x83B7e46230ab279952Ad210c414d554255Ea95a2"], // commited hash
+      value: BigInt(`${2000000000000000}`),
     });
 
     window.tree.insert(hashCommitment);
