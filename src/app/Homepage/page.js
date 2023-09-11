@@ -26,6 +26,7 @@ import utils from '../methods/utils.js';
 import { BigNumber } from "@ethersproject/bignumber";
 import { poseidonContract, buildPoseidon } from "circomlibjs";
 import {poseidonHash} from '../methods/hashing';
+import depositAbi from './depositAbi.json'
 
 // const wc = require("../circuit/witness_calculator.js");
 
@@ -241,6 +242,19 @@ const StyledModalBoxTwo = styled(Box)({
   // width: 500,
 })
 
+const VisuallyHiddenInput = styled('input')`
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+  width: 1px;
+`;
+
+
 const StyledButton = styled(Button)({
   height: '70px',
   '& .MuiButton-label': {
@@ -316,15 +330,42 @@ export default function Home(props) {
   //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
   // });
 
-  // const {write} = useContractWrite({
+  // const { write } = useContractWrite({
   //   address: '0x61d2408168aC3ab91663EB945A53237109768165',
-  //   abi: coverJson.abi,
-  //   functionName: 'buyCover',
-  //   args:[[
-  //     "" // commited hash
-  //   ]],
-  //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
+  //   abi: depositAbi.abi,
+  //   functionName: 'deposit',
+  //   args:[
+  //     `${privateNote}` // commited hash
+  //   ],
+  //   value: depositAmount ? parseEther(`${depositAmount}`): parseEther("0"),
   // });
+
+  // FOR DEPOSIT
+  const { config } = usePrepareContractWrite({
+    address: '0x88Dc222180a2e5c6C8aEca044Bb186B6557Bd765',
+    abi: [{
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_commitment",
+          "type": "bytes32"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }],
+    functionName: 'deposit',
+    args: [`${privateNote}`], // commited hash
+    value: depositAmount ? BigInt(`${1000000000000000}`) : parseEther("0"),
+  })
+
+  const { write } = useContractWrite(config)
+
+  // FOR WITHDRAW
+
+  // const { data: sellData, isLoading: sellisLoading, isSuccess: sellisSuccess, write: sellWrite } = useContractWrite(sellConfig)
   
   // console.log("cdata, isError, isLoading : ", data, isError, isLoading);
 
@@ -338,28 +379,40 @@ export default function Home(props) {
     const element = document.createElement("a");
     const file = new Blob([JSON.stringify(jsonData, null, 2)], {type: 'text/plain'}); // Use null, 2 arguments to make the format pretty
     element.href = URL.createObjectURL(file);
-    element.download = "myFile.txt";
+    element.download = "mySecret.txt";
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
   }
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          console.log("JSON IN FILE IS : ", json);
+          setPrivateNote(json.hashCommitment)
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          alert("Invalid JSON content in the file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
 
   const depositEther = async () => {
       setDepositState(true);
 
       console.log("BigNumber : ", BigNumber);
-
-      const secret = BigNumber.from(ethers.randomBytes(32)).toString();
       const nullifier = BigNumber.from(ethers.randomBytes(32)).toString();
       const value = BigNumber.from(`${depositAmount}`).toHexString();
 
-      console.log("secret : ", secret);
       console.log("nullifier : ", nullifier);
       console.log("value : ", value);
-      
-      const input = {
-          secret: utils.BN256ToBin(secret).split(""),
-          nullifier: utils.BN256ToBin(nullifier).split("")
-      };
+    
 
       let newPoseidon = await buildPoseidon();
 
@@ -367,8 +420,8 @@ export default function Home(props) {
 
       const hashCommitment = poseidonHash(newPoseidon, [nullifier, 0]);
       const hashNullifier = poseidonHash(newPoseidon, [nullifier, 1, leafIndex]);
-
-      console.log("hashCommitment: ", hashCommitment);
+      
+      console.log("hashCommitment: ", hashCommitment); // for deposit
       console.log("hashNullifier: ", hashNullifier);
 
       console.log("value : ", value);
@@ -376,40 +429,11 @@ export default function Home(props) {
       downloadTxtFile({
         hashCommitment,
         hashNullifier,
-        secret,
         nullifier,
         value
       })
 
-      // hashCommitment, value to smart contract
-
-
-      // const tx = {
-      //     to: onSenEtherAddress,
-      //     from: address,
-      //     value: value,
-      //     data: onSenEtherInterface.encodeFunctionData("deposit", [commitment])
-      // };
-
-      try {
-          // console.log("tx : ", tx);
-          // const txHash = await window.ethereum.request({ method: "eth_sendTransaction", params: [tx] });
-
-          // const proofElements = {
-          //     nullifierHash: `${nullifierHash}`,
-          //     secret: secret,
-          //     nullifier: nullifier,
-          //     commitment: `${commitment}`,
-          //     txHash: txHash
-          // };
-
-          // console.log(proofElements);
-
-          // updateProofElements(btoa(JSON.stringify(proofElements)));
-      }catch(e){
-          console.log(e);
-      }
-
+      setPrivateNote(hashCommitment)
       setDepositState(false);
   };
 
@@ -524,6 +548,7 @@ export default function Home(props) {
                             setDepositAmount(e.target.value)
                           }}
                         >
+                          <MenuItem value={1000}>1000 Wei</MenuItem>
                           <MenuItem value={100000000000000000}>0.1 Ether</MenuItem>
                           <MenuItem value={1000000000000000000}>1 Ether</MenuItem>
                           <MenuItem value={10000000000000000000}>10 Ether</MenuItem>
@@ -535,8 +560,10 @@ export default function Home(props) {
                       fullWidth
                       variant="contained"
                       size="large"
-                      onClick={()=> {
-                        depositEther()
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        await depositEther()
+                        write?.()
                       }}
                     >Deposit Now!</StyledButton>
                     </StyledPinkPaper>
@@ -598,7 +625,7 @@ export default function Home(props) {
                         </StyledSelect>
                       </FormControl>
                       <br/><br/>
-                      <StyledTextField
+                      {/* <StyledTextField
                         fullWidth
                         value={privateNote} 
                         id="private-note" 
@@ -607,7 +634,16 @@ export default function Home(props) {
                         onChange={(e) => {
                           setPrivateNote(e.target.value)
                         }}
-                      />
+                      /> */}
+                      <StyledPinkButton
+                        component="label"
+                        variant="contained"
+                        href="#file-upload"
+                        fullWidth
+                      >
+                        Upload Secret Text File
+                        <VisuallyHiddenInput accept=".txt" type="file" onChange={handleFileUpload}/>
+                      </StyledPinkButton>
                       <br/><br/>
                       <StyledPinkButton 
                       fullWidth
