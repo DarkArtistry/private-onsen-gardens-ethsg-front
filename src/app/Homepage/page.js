@@ -316,15 +316,15 @@ export default function Home(props) {
   //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
   // });
 
-  const {write} = useContractWrite({
-    address: '0x61d2408168aC3ab91663EB945A53237109768165',
-    abi: coverJson.abi,
-    functionName: 'buyCover',
-    args:[[
-      "" // commited hash
-    ]],
-    value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
-  });
+  // const {write} = useContractWrite({
+  //   address: '0x61d2408168aC3ab91663EB945A53237109768165',
+  //   abi: coverJson.abi,
+  //   functionName: 'buyCover',
+  //   args:[[
+  //     "" // commited hash
+  //   ]],
+  //   value: data ? parseEther(`${premium /(Number(BigInt(data)) / 100000000)}`): parseEther("0"),
+  // });
   
   // console.log("cdata, isError, isLoading : ", data, isError, isLoading);
 
@@ -333,6 +333,15 @@ export default function Home(props) {
   console.log("isConnected : ", isConnected);
   console.log("address : ", address);
   console.log("connector : ", connector);
+
+  const downloadTxtFile = (jsonData) => {
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(jsonData, null, 2)], {type: 'text/plain'}); // Use null, 2 arguments to make the format pretty
+    element.href = URL.createObjectURL(file);
+    element.download = "myFile.txt";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }
 
   const depositEther = async () => {
       setDepositState(true);
@@ -363,6 +372,14 @@ export default function Home(props) {
       console.log("hashNullifier: ", hashNullifier);
 
       console.log("value : ", value);
+
+      downloadTxtFile({
+        hashCommitment,
+        hashNullifier,
+        secret,
+        nullifier,
+        value
+      })
 
       // hashCommitment, value to smart contract
 
