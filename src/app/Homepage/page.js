@@ -524,8 +524,53 @@ export default function Home(props) {
     return solProof;
   }
 
+  async function new_tree() {
+    const zeus = await buildPoseidon();
+    // setZues(zeus);
+    window.zeus2 = zeus;
+    const tree2 = new MerkleTree(20, "test", new PoseidonHasher(zeus2));
+    window.tree2 = tree2;
+
+    const nullifier = 1257351033063638949926321903661074149n
+    const nullifierHash = "0x2768b85b4e55477722d96ec06940783853f4b7b2d63eb6d3cedbd58275b7dba2"
+    // const leafIndex = 0
+    const commitment = "0x1b4e4d0faf36ea867b100696baa7d962175c82a4a1530903910bf368d9d2e53e"
+    console.log(tree);
+    
+    //console.log(await tree.root(), await tornadoContract.roots(0));
+    await tree2.insert(commitment);
+
+    const { root, path_elements, path_index } = await tree2.path(
+      0
+    );
+    
+    console.log("root : ", root);
+    console.log("path_elements : ", path_elements);
+    console.log("path_index : ", path_index);
+
+    const witness = {
+      // Public
+      root: `${root}`,
+      nullifierHash: `${nullifierHash}`,
+      recipient: `${address}`, // this case is myself
+      relayer: `${address}`, // this case is myself
+      fee: 0,
+      // Private (user keep)
+      nullifier: nullifier,
+      pathElements: path_elements,
+      pathIndices: path_index,
+    };
+
+    console.log("witness : ", witness);
+  
+    const solProof = await prove(witness);
+
+    console.log("solProof : ", solProof);
+  }
+
   async function withdraw() {
-    const nullifierHash = privateNote;
+
+    // const nullifierHash = privateNote;
     const recipient = address;
     const relayer = address;
     const fee = 0;
@@ -928,8 +973,9 @@ export default function Home(props) {
                           size="large"
                           onClick={async () => {
                             await withdraw()
+                            // await new_tree()
                             // console.log('test withdraw');
-                            // withdrawTest()
+                            withdrawTest()
                           }}
                         >
                           Withdraw Now!
